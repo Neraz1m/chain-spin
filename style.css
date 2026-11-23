@@ -44,6 +44,9 @@ dialog{width:min(640px,calc(100% - 24px));max-height:86dvh;overflow:auto;backgro
 @media(hover:none){.editing .tile-actions{opacity:1;pointer-events:auto}.editing .pixel{opacity:.35}.editing .tile{justify-content:flex-end;padding-bottom:9%}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 .receipt-options{padding-left:2.3em;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+.inline-actions .small{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.inline-actions .small svg{width:15px;height:15px}
+@media(max-width:360px){#progress-actions .small{font-size:12px;padding:8px}}
 .tile.trail-3{transition-duration:35ms}
 @media(prefers-reduced-motion:no-preference){
   .tile.winner::after{content:"";position:absolute;inset:0;border:1px solid var(--lime);border-radius:inherit;pointer-events:none;animation:landing-ring 540ms ease-out both}

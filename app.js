@@ -58,10 +58,26 @@ function configure(reset=true){
     current=null;$('progress-panel').hidden=true;Board.clearResult();setState(Board.isEditing()?'Editing':'Ready',Board.isEditing()?'edit':'');
   }
 }
-function button(label,fn,cls='small'){const b=document.createElement('button');b.className=cls;b.type='button';b.textContent=label;b.onclick=fn;return b;}
+function button(label,fn,symbol){
+  const b=document.createElement('button');b.className='small';b.type='button';b.textContent=label;b.onclick=fn;
+  if(symbol)b.insertAdjacentHTML('afterbegin',icon(symbol));
+  return b;
+}
 function download(obj,kind){
   const data=new Blob([JSON.stringify(obj,null,2)+'\n'],{type:'application/json'}),url=URL.createObjectURL(data);
   const a=document.createElement('a');a.href=url;a.download='chainspin-'+kind+'-'+obj.id.slice(0,12)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+function exportButton(receipt){
+  const snapshot={...receipt};
+  return button(snapshot.result?'Export receipt':'Export commitment',()=>download(snapshot,snapshot.result?'proof':'commit'),'download');
+}
+function openHistoryImport(){
+  location.hash='history';
+  // Reveal History while the click can still open its native file picker.
+  navigate();
+  const trigger=$('import-button');
+  trigger.focus();
+  trigger.click();
 }
 function panel(title,line,id='',buttons=[]){
   $('progress-panel').hidden=false;$('progress-title').textContent=title;$('progress-text').textContent=line+(storageWarning?' Local storage is unavailable. Export this receipt.':'');
@@ -94,8 +110,10 @@ async function revealDraw(item,animate){
   item.state='drawn';save(item);
   active=null;configure(false);setState('Draw complete','done');
   const chain=Protocol.target(plan).chain.toUpperCase();
+  const transfers=document.createElement('div');transfers.className='inline-actions';
+  transfers.append(exportButton(item.receipt),button('Import receipt',openHistoryImport,'upload'));
   panel('Winner · '+winnerText(plan,result.winner),'Trigger: '+chain+'. Open the receipt to check block hashes and finality.',id,
-    [button('View receipt',()=>details(item.receipt)),button('Export JSON',()=>download(item.receipt,'proof'))]);
+    [button('View receipt',()=>details(item.receipt)),transfers]);
   renderHistory();
 }
 async function run(item){
@@ -206,7 +224,7 @@ async function details(receipt){
     try{note.textContent=await Networks.audit(receipt);note.className='dialog-note verified';}
     catch(e){note.textContent='Verification incomplete. '+e.message;note.className='dialog-note warning';}finally{check.disabled=false;}
   });
-  actions.append(check,button('Export JSON',()=>download(receipt,result?'proof':'commit')));
+  actions.append(check,exportButton(receipt));
   if(!result)actions.append(button('Reconstruct draw',async e=>{
     const b=e.currentTarget;b.disabled=true;note.textContent='Fetching blocks from the committed plan…';
     try{
