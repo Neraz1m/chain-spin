@@ -69,7 +69,7 @@ function download(obj,kind){
 }
 function exportButton(receipt){
   const snapshot={...receipt};
-  return button(snapshot.result?'Export receipt':'Export commitment',()=>download(snapshot,snapshot.result?'proof':'commit'),'download');
+  return button(snapshot.result?'Export receipt':'Export commitment',()=>download(snapshot,snapshot.result?'proof':'commit'),'upload');
 }
 function openHistoryImport(){
   location.hash='history';
@@ -111,7 +111,7 @@ async function revealDraw(item,animate){
   active=null;configure(false);setState('Draw complete','done');
   const chain=Protocol.target(plan).chain.toUpperCase();
   const transfers=document.createElement('div');transfers.className='inline-actions';
-  transfers.append(exportButton(item.receipt),button('Import receipt',openHistoryImport,'upload'));
+  transfers.append(exportButton(item.receipt),button('Import receipt',openHistoryImport,'download'));
   panel('Winner · '+winnerText(plan,result.winner),'Trigger: '+chain+'. Open the receipt to check block hashes and finality.',id,
     [button('View receipt',()=>details(item.receipt)),transfers]);
   renderHistory();
@@ -119,7 +119,7 @@ async function revealDraw(item,animate){
 async function run(item){
   const {plan,id}=item.receipt,goal=Protocol.target(plan),cursors={};
   active=item;current=item;installPlan(plan);configure(false);Board.clearResult();Board.spin();setState('Drawing','working');
-  panel('Board locked','Waiting for the target blocks.',id,[button('Export commitment',()=>download({plan,id,result:null},'commit')),button('Stop waiting',()=>stopRound(item))]);
+  panel('Board locked','Waiting for the target blocks.',id,[button('Export commitment',()=>download({plan,id,result:null},'commit'),'upload'),button('Stop waiting',()=>stopRound(item))]);
   const message=t=>{if(active===item)$('progress-text').textContent=t+(storageWarning?' Export your commitment to keep it.':'');};
   while(active===item){
     const left=goal.deadline-Date.now();
